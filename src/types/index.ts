@@ -1,16 +1,17 @@
+import type { UserRole } from "@prisma/client";
 // User Types
+// Modify the User interface to use imported UserRole:
 export interface User {
   id: string;
   email: string;
   phoneNumber: string;
   firstName: string;
   lastName: string;
-  role: UserRole;
+  role: UserRole; // from Prisma client now
   cooperativeId?: string;
   cooperative?: Cooperative;
   createdAt: Date;
   updatedAt: Date;
-}
 
 export enum UserRole {
   FARMER = "FARMER",
