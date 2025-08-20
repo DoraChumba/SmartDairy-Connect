@@ -1,0 +1,195 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  phoneNumber   String    @unique
+  firstName     String
+  lastName      String
+  role          UserRole  @default(FARMER)
+  cooperativeId String?
+  cooperative   Cooperative? @relation(fields: [cooperativeId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  milkRecords   MilkRecord[]
+  payments      Payment[]
+  serviceRequests ServiceRequest[]
+  messages      Message[]
+  
+  @@map("users")
+}
+
+model Cooperative {
+  id          String   @id @default(cuid())
+  name        String
+  location    String
+  contactInfo Json
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  users       User[]
+  milkRecords MilkRecord[]
+  payments    Payment[]
+  announcements Announcement[]
+  
+  @@map("cooperatives")
+}
+
+model MilkRecord {
+  id            String   @id @default(cuid())
+  farmerId      String
+  farmer        User     @relation(fields: [farmerId], references: [id])
+  cooperativeId String
+  cooperative   Cooperative @relation(fields: [cooperativeId], references: [id])
+  quantity      Float    // in liters
+  quality       Float    // quality score 0-100
+  fatContent    Float?   // fat percentage
+  proteinContent Float?  // protein percentage
+  deliveryDate  DateTime
+  collectionTime DateTime
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@map("milk_records")
+}
+
+model Payment {
+  id            String   @id @default(cuid())
+  farmerId      String
+  farmer        User     @relation(fields: [farmerId], references: [id])
+  cooperativeId String
+  cooperative   Cooperative @relation(fields: [cooperativeId], references: [id])
+  amount        Float
+  currency      String   @default("KES")
+  paymentType  PaymentType
+  status        PaymentStatus @default(PENDING)
+  paymentDate   DateTime?
+  reference     String?
+  description  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  @@map("payments")
+}
+
+model ServiceRequest {
+  id            String   @id @default(cuid())
+  farmerId      String
+  farmer        User     @relation(fields: [farmerId], references: [id])
+  type          ServiceType
+  title         String
+  description   String
+  status        RequestStatus @default(PENDING)
+  priority      Priority @default(MEDIUM)
+  assignedTo    String?
+  scheduledDate DateTime?
+  completedDate DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@map("service_requests")
+}
+
+model Announcement {
+  id            String   @id @default(cuid())
+  cooperativeId String
+  cooperative   Cooperative @relation(fields: [cooperativeId], references: [id])
+  title         String
+  content       String
+  priority      Priority @default(MEDIUM)
+  isActive      Boolean  @default(true)
+  publishedAt   DateTime @default(now())
+  expiresAt     DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  @@map("announcements")
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  senderId  String
+  sender    User     @relation(fields: [senderId], references: [id])
+  content   String
+  type      MessageType
+  status    MessageStatus @default(SENT)
+  metadata  Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("messages")
+}
+
+// Enums
+enum UserRole {
+  FARMER
+  COOPERATIVE_STAFF
+  ADMIN
+  VETERINARIAN
+}
+
+enum PaymentType {
+  MILK_PAYMENT
+  SERVICE_FEE
+  MEMBERSHIP_FEE
+  OTHER
+}
+
+enum PaymentStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum ServiceType {
+  VETERINARY
+  FEED_SUPPLY
+  TECHNICAL_SUPPORT
+  TRAINING
+  OTHER
+}
+
+enum RequestStatus {
+  PENDING
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum MessageType {
+  SMS
+  WHATSAPP
+  IN_APP
+  PUSH_NOTIFICATION
+}
+
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
