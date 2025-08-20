@@ -1,4 +1,4 @@
-# SmartDairy Connect 🐄
+# SmartDairy Connect 
 
 A comprehensive digital platform connecting dairy farmers with cooperatives for better milk management, transparent payments, and seamless communication.
 
@@ -274,4 +274,4 @@ For support and questions:
 
 ---
 
-**SmartDairy Connect** - Empowering dairy farmers with digital solutions for better milk management and cooperative operations. 🐄💚
+**SmartDairy Connect** - Empowering Dairy Farmers Through Digital Access. 
