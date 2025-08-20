@@ -1,4 +1,3 @@
-import { UserRole } from "@prisma/client";
 // User Types
 // Modify the User interface to use imported UserRole:
 export interface User {
